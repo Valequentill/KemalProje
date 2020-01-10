@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tflite/tflite.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image/image.dart' as img;
 
 void main() {
   runApp(MyApp());
@@ -61,8 +60,8 @@ class _TfliteHomeState extends State<TfliteHome> {
         );
       } else {
         res = await Tflite.loadModel(
-          model: "assets/tflite/ssd_mobilenet.tflite",
-          labels: "assets/tflite/ssd_mobilenet.txt",
+          model: "assets/tflite/selams.tflite",
+          labels: "assets/tflite/labelmap.txt",
         );
       }
       print(res);
@@ -72,10 +71,11 @@ class _TfliteHomeState extends State<TfliteHome> {
   }
 
   selectFromImagePicker() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    var image = await ImagePicker.pickImage(source: ImageSource.camera);
     if (image == null) return;
     setState(() {
       _busy = true;
+      _image = image;
     });
     predictImage(image);
   }
@@ -120,9 +120,10 @@ class _TfliteHomeState extends State<TfliteHome> {
 
   ssdMobileNet(File image) async {
     var recognitions = await Tflite.detectObjectOnImage(
-        path: image.path, numResultsPerClass: 1);
+        path: image.path, numResultsPerClass: 5);
 
     setState(() {
+      _busy = false;
       _recognitions = recognitions;
     });
   }
@@ -145,9 +146,9 @@ class _TfliteHomeState extends State<TfliteHome> {
         child: Container(
           decoration: BoxDecoration(
               border: Border.all(
-            color: blue,
-            width: 3,
-          )),
+                color: blue,
+                width: 3,
+              )),
           child: Text(
             "${re["detectedClass"]} ${(re["confidenceInClass"] * 100).toStringAsFixed(0)}%",
             style: TextStyle(
@@ -171,7 +172,7 @@ class _TfliteHomeState extends State<TfliteHome> {
       top: 0.0,
       left: 0.0,
       width: size.width,
-      child: _image == null ? Text("No Image Selected") : Image.file(_image),
+      child: _image == null ? Center(child: Text("Kamerayi Kullanmak İcin Butona Basiniz")) : Image.file(_image),
     ));
 
     stackChildren.addAll(renderBoxes(size));
@@ -182,17 +183,19 @@ class _TfliteHomeState extends State<TfliteHome> {
       ));
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("TFLite Demo"),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.image),
-        tooltip: "Pick Image from gallery",
-        onPressed: selectFromImagePicker,
-      ),
-      body: Stack(
-        children: stackChildren,
+    return Center(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Center(child: Text("Yuz Ifadesi Tanima")),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.camera_alt),
+          tooltip: "Kamerayi Kullanmak İcin Butona Basin",
+          onPressed: selectFromImagePicker,
+        ),
+        body: Stack(
+          children: stackChildren,
+        ),
       ),
     );
   }

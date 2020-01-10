@@ -42,8 +42,8 @@ flutter:
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/tflite/ssd_mobilenet.tflite
-    - assets/tflite/ssd_mobilenet.txt
+    - assets/tflite/selams.tflite
+    - assets/tflite/labelmap.txt
     - assets/tflite/yolov2_tiny.tflite
     - assets/tflite/yolov2_tiny.txt
   # An image asset can refer to one or more resolution-specific "variants", see
